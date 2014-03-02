@@ -15,6 +15,7 @@ use Parula::Db;
 use Parula::Utils;
 use JRS::Error;
 use JRS::StrNumUtils;
+use JRS::DateTimeUtils;
 
 my $pt_db_source       = Config::get_value_for("database_host");
 my $pt_db_catalog      = Config::get_value_for("database_name");
@@ -165,7 +166,7 @@ sub _format_message_stream {
     my $loop_data         = shift;
     my @messages = ();
     foreach my $hash_ref ( @$loop_data ) {
-        $hash_ref->{created_date}   = StrNumUtils::format_creation_date($hash_ref->{created_date}, $hash_ref->{date_epoch_seconds});
+        $hash_ref->{created_date}   = DateTimeUtils::format_creation_date($hash_ref->{created_date}, $hash_ref->{date_epoch_seconds});
         push(@messages, $hash_ref);
     }
     return @messages;
