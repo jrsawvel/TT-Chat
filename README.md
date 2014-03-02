@@ -31,7 +31,9 @@ The client-side JavaScript sends a POST request to the server. The server-side c
 
 ## Dependencies 
 
-It relies on the [http://minifiedjs.com](http://minifiedjs.com) framework. 
-
-It also uses the [Error.pm](https://github.com/jrsawvel/Kinglet/blob/master/lib/API/Error.pm) module from Kinglet, and the [StrNumUtils.pm](https://github.com/jrsawvel/StrNumUtils) module, along with the ToledoTalk Parula modules.
+* [http://minifiedjs.com](http://minifiedjs.com) framework.   
+* [Error.pm](https://github.com/jrsawvel/Kinglet/blob/master/lib/API/Error.pm) module from Kinglet
+* [StrNumUtils.pm](https://github.com/jrsawvel/StrNumUtils)
+* [DateTimeUtils.pm](https://github.com/jrsawvel/DateTimeUtils)
+* Toledo Talk's Parula modules.
 
