@@ -1,0 +1,240 @@
+<!doctype html>
+<!--[if lt IE 7 ]> <html class="no-js ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7 ]>    <html class="no-js ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8 ]>    <html class="no-js ie8 oldie" lang="en"> <![endif]-->
+<!--[if IE 9 ]>    <html class="no-js ie9" lang="en"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!-->
+<html class="no-js" lang="en">
+<!--<![endif]-->
+
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<!--[if lt IE 9]> 
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<![endif]-->
+<meta name="viewport" content="width=device-width initial-scale=1.0 maximum-scale=1.0 user-scalable=yes" />
+<title><!-- tmpl_var name="pagetitle" --></title>
+<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic|Open+Sans:700,400" />
+<!--[if lt IE 9]>
+<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<script type='text/javascript' src="http://toledotalk.com/minified.js"></script>
+  
+<style type='text/css'>
+
+body {
+    background: #ffffff;
+    font-family: "Open Sans", Arial, Helvetica, sans-serif; 
+    font-size: 100%; 
+    line-height: 1.5em;
+    width: 100%; 
+    margin: 0px;
+    padding: 0px;
+}
+
+article, section {
+    display: block;
+    margin: 0;
+    padding: 0;
+}
+
+article {
+    margin: 0px auto 0px;
+    position: relative;
+    padding: 5px 0 0 0;
+    width: 95%;
+    max-width: 46em;  /* approx 736 pixels wide */
+}
+
+small {
+    color: #888;
+}
+
+input {
+    width: 80%;
+    font-size: 1em;
+    font-family: "Open Sans", Arial, Helvetica, sans-serif; 
+    height: 2em;
+}
+
+.important { 
+    font-weight: bold; 
+    background: #ffffcc; 
+}
+
+#ttimage {
+    float: left;
+    display: inline;
+    padding-right: 5px;
+}
+#ttimage img {
+    height: 39px;
+    width: 38px;
+}
+
+@media only screen and (max-width: 50em) { 
+    #ttimage img {
+        height: 25px;
+        width: 25px;
+    }
+}
+
+@media only screen and (max-width: 46em) { 
+    #ttimage {
+        display: none;
+    }
+}
+
+
+
+</style>
+  
+
+
+<script type='text/javascript'>//<![CDATA[ 
+
+var MINI = require('minified'); 
+var $ = MINI.$, $$ = MINI.$$, EE = MINI.EE;
+
+var autoSaveInterval=20000; // every 20 seconds
+var intervalID=0;
+
+$(function() {
+
+    getMessages('', 'Get');
+
+    intervalID = setInterval(function(){getMessages('', 'Get')},autoSaveInterval); 
+
+    function getMessages (msg, actionType) {
+            $.request('post', 'http://toledotalk.com/cgi-bin/tt.pl/chatpost', {message: msg, sb: actionType, formtype: 'ajax'})
+               .then(function(response) {
+
+                   var json_obj = $.parseJSON(response);
+                   var messages = json_obj['messages'];                 
+                   var error_code = json_obj['error_code'];
+                   var status_code = json_obj['status'];
+
+                   if ( !error_code && status_code < 300 ) {
+                       var array_len = messages.length;
+
+                       if ( actionType === "Post" ) {
+                           $('#error').fill(EE('span', ''));
+                       }
+
+                       $('.todos').fill(EE('span', ''));
+
+                       for (var i = 0; i < array_len; i++) {
+                           var message_id   = messages[i].message_id; 
+                           var message_text = messages[i].message_text; 
+                           var author_name  = messages[i].author_name; 
+                           var created_date = messages[i].created_date; 
+
+                           $('.todos').add(EE('p', [
+                               EE('strong', author_name),
+                               EE('span', " - "),
+                               EE('span', message_text),
+                               EE('br'), 
+                               EE('small', created_date),
+                           ]));
+                       }
+
+                      if ( actionType === "Post" ) {
+                          $('input').set({value: '', checked: false}); // reset inputs
+                      }
+                   
+                   } else if ( status_code > 300 ) {
+                       var error_message   = json_obj['user_message'] + " " + json_obj['system_message'];
+                       $('#error').add(EE('span', error_message));
+
+                   } else {
+                       // var json_obj = $.parseJSON(response);
+                       var error_message = json_obj['error_message'];                 
+                       // $('.error').add(EE('span', {$: classes}, error_message));
+                       $('#error').add(EE('span', error_message));
+                   }
+
+               })
+              .error(function(status, statusText, responseText) {
+                   // $('.todos').add(EE('p', "response could not be completed. " + status + " " + statusText + " " + responseText));
+                   var json_obj = $.parseJSON(responseText);
+                   var status_code = json_obj['status'];                 
+                   if ( status_code > 300 ) {
+                       var error_message = json_obj['user_message'] + " " + json_obj['system_message'];                 
+                       $('#error').fill(EE('span', ''));
+                       $('#error').add(EE('span', error_message));
+                   } else {
+                       $('.todos').add(EE('p', "response could not be completed. " + responseText));
+                   }
+               });
+    }
+
+
+    $('#addButton').on('click', function() {
+
+        if ($$('#textInput').value) {
+
+            var msg = $$('#textInput').value;
+
+            getMessages(msg, 'Post');
+
+        } else {
+            getMessages(msg, 'Get');
+        }
+
+    });
+});
+
+//]]>  
+
+</script>
+
+</head>
+<body>
+<div id="ttimage">
+<!-- <a href="http://toledotalk.com"><img width="38px" height="39px" border="0" src="http://toledotalk.com/images/tt3.PNG"></a> -->
+<a href="http://toledotalk.com"><img border="0" src="http://toledotalk.com/images/tt3.PNG"></a>
+</div>
+
+<article>
+
+<!-- tmpl_if loggedin --> 
+<form>
+<input id="textInput" autofocus  /> 
+<button id="addButton">post</button>
+</form>
+<!-- tmpl_else  -->
+<div style="float:right;">
+<button id="addButton">refresh</button>
+<input id="textInput" type="hidden" /> 
+</div>
+<!-- /tmpl_if -->
+
+<div class="important" id="error"></div> 
+<div class="todos"></div> 
+
+<center>
+<p>
+<small>&copy; 2003-2014 <a href="<!-- tmpl_var name="home_page" -->"><!-- tmpl_var name="site_name" --></a></small>
+<br />
+<small>current date: <!-- tmpl_var name="serverdatetime" --></small>
+</p>
+</center>
+
+</article>
+
+<!-- site name var <!-- tmpl_var name="site_name"--> -->
+<!-- site description var <!-- tmpl_var name="site_description" --> -->
+<!-- <!-- tmpl_var name="maincss_url" --> -->
+<!-- <!-- tmpl_var name="cgi_app" --> -->
+<!-- <!-- tmpl_var name="css_js_layout" --> -->
+<!-- <!-- tmpl_var name="parula_text_size" --> -->
+<!-- <!-- tmpl_var name="home_page" --> -->
+<!-- <!-- tmpl_var name="user_name" --> -->
+<!-- <!-- tmpl_var name="username" --> -->
+
+
+
+</body>
+</html>
